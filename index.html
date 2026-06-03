@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mosaic Maker</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <h1>Mosaic Maker</h1>
+    <p class="tagline">Square · hex · octagon grids · export for Sweet Home 3D</p>
+  </header>
+
+  <main class="layout">
+    <aside class="panel" id="panel" aria-label="Project settings">
+      <div class="panel-rail">
+        <button type="button" id="btn-panel-toggle" class="btn btn-sm btn-panel-toggle"
+                aria-expanded="true" aria-controls="panel-body"
+                title="Hide settings panel">◀</button>
+        <input type="color" id="paint-color" class="paint-picker" value="#2d5a7b"
+               aria-label="Active paint color" title="Active paint color">
+        <div class="swatches" id="swatches" role="listbox" aria-label="Color swatches"></div>
+        <div class="gallery-rail">
+          <div class="gallery-toolbar">
+            <button type="button" id="btn-import-tile" class="btn btn-sm" title="Add image to catalog">+ Image</button>
+            <input type="file" id="import-tile-file" accept="image/*" hidden>
+          </div>
+          <div class="gallery" id="gallery" role="listbox" aria-label="Tile catalog"></div>
+          <div class="tile-transform" id="tile-transform" hidden>
+            <button type="button" id="btn-flip-h" class="btn btn-sm" title="Flip horizontal">↔</button>
+            <button type="button" id="btn-flip-v" class="btn btn-sm" title="Flip vertical">↕</button>
+            <button type="button" id="btn-rot" class="btn btn-sm" title="Rotate 90°">↻</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-body" id="panel-body">
+      <section class="panel-section">
+        <h2>Floor plan</h2>
+        <p class="hint">Room size in cm (Sweet Home 3D). Offset and rotation align the pattern in the room.</p>
+        <div class="field-row">
+          <label for="room-width">Width</label>
+          <input type="number" id="room-width" min="10" step="1" value="300" required> cm
+        </div>
+        <div class="field-row">
+          <label for="room-height">Height</label>
+          <input type="number" id="room-height" min="10" step="1" value="200" required> cm
+        </div>
+        <div class="field-row">
+          <label for="offset-x">Offset X</label>
+          <input type="number" id="offset-x" step="0.5" value="0"> cm
+        </div>
+        <div class="field-row">
+          <label for="offset-y">Offset Y</label>
+          <input type="number" id="offset-y" step="0.5" value="0"> cm
+        </div>
+        <div class="field-row">
+          <label for="rotation">Rotation</label>
+          <input type="number" id="rotation" step="1" value="0"> °
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <h2>Layout</h2>
+        <fieldset class="layout-picker">
+          <legend class="sr-only">Grid type</legend>
+          <label class="radio-label">
+            <input type="radio" name="grid-mode" value="square" checked> Square
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="grid-mode" value="hex"> Hexagon
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="grid-mode" value="octagon"> Octagon + filler
+          </label>
+        </fieldset>
+        <p class="hint layout-hint" id="layout-hint">Square grid with grout gaps.</p>
+      </section>
+
+      <section class="panel-section">
+        <h2>Tiles</h2>
+        <div class="field-row">
+          <label for="tile-size">Tile size</label>
+          <input type="number" id="tile-size" min="1" step="0.5" value="11" required> cm
+        </div>
+        <div class="field-row field-octagon" id="field-corner-cut" hidden>
+          <label for="corner-cut">Corner cut</label>
+          <input type="number" id="corner-cut" min="0" step="0.5" value="2.5"> cm
+        </div>
+        <div class="field-row">
+          <label for="grout-width">Grout gap</label>
+          <input type="number" id="grout-width" min="0" step="0.5" value="0.2" required> cm
+        </div>
+        <div class="field-row">
+          <label for="grout-color">Grout color</label>
+          <input type="color" id="grout-color" value="#c8c4bc">
+        </div>
+        <button type="button" id="btn-rebuild" class="btn btn-primary">Rebuild grid</button>
+        <p id="grid-info" class="grid-info" aria-live="polite"></p>
+      </section>
+
+      <section class="panel-section">
+        <h2>Paint</h2>
+        <div class="tool-row">
+          <button type="button" id="btn-fill-grout" class="btn">Fill all with grout</button>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <h2>Project</h2>
+        <p class="hint">Save or load <code>.mosaic.json</code> (settings, colors, embedded tile images as base64).</p>
+        <div class="tool-row project-actions">
+          <button type="button" id="btn-save" class="btn btn-primary">Save project</button>
+          <button type="button" id="btn-load" class="btn">Load project…</button>
+          <input type="file" id="load-file" accept=".json,.mosaic.json,application/json" hidden>
+        </div>
+        <p id="project-status" class="grid-info" aria-live="polite"></p>
+      </section>
+
+      <section class="panel-section">
+        <h2>Export</h2>
+        <p class="hint">PNG matches room size in cm for Sweet Home 3D (includes offset &amp; rotation).</p>
+        <div class="field-row">
+          <label for="export-ppi">Resolution</label>
+          <input type="number" id="export-ppi" min="1" max="40" step="1" value="10"> px/cm
+        </div>
+        <button type="button" id="btn-export" class="btn btn-primary">Download PNG</button>
+        <p id="export-hint" class="export-hint"></p>
+      </section>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <div class="workspace-toolbar">
+        <div class="zoom-controls">
+          <button type="button" id="btn-zoom-out" class="btn btn-sm" title="Zoom out">−</button>
+          <button type="button" id="btn-zoom-reset" class="btn btn-sm" title="Fit room">Fit</button>
+          <button type="button" id="btn-zoom-in" class="btn btn-sm" title="Zoom in">+</button>
+        </div>
+        <span class="viewport-hint">Right-click undo · Scroll zoom · Shift+drag pan</span>
+        <span id="cursor-pos" class="cursor-pos"></span>
+      </div>
+      <div class="canvas-wrap" id="canvas-wrap">
+        <svg id="mosaic" class="mosaic" xmlns="http://www.w3.org/2000/svg" role="img"
+             aria-label="Mosaic preview" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <clipPath id="room-clip">
+              <rect id="clip-rect" x="0" y="0" width="300" height="200"></rect>
+            </clipPath>
+          </defs>
+          <g id="pattern-root" clip-path="url(#room-clip)">
+            <rect id="room-bg" class="room-bg"></rect>
+            <g id="tiles-layer"></g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/cell.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/tile-grids.js"></script>
+  <script src="js/project-io.js"></script>
+  <script src="js/mosaic.js"></script>
+</body>
+</html>
