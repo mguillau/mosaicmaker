@@ -4,6 +4,10 @@ Static web app for designing tile mosaics and exporting PNG textures for [Sweet 
 
 Stack: HTML, CSS, JavaScript (SVG). No build step, no backend.
 
+## Screenshot
+
+![Alt text](/docs/screenshot_mosaicmaker.png?raw=true "Screenshot of Mosaicmaker")
+
 ## Features
 
 - Floor plan rectangle (cm), **offset** and **rotation** for Sweet Home 3D alignment
