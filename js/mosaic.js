@@ -526,6 +526,13 @@
     });
   }
 
+  function brushThumbTransform(h, v, r) {
+    const sx = h ? -1 : 1;
+    const sy = v ? -1 : 1;
+    if (!r && sx === 1 && sy === 1) return "";
+    return "rotate(" + r + "deg) scale(" + sx + "," + sy + ")";
+  }
+
   function renderGallery() {
     els.gallery.replaceChildren();
     Catalog.list(catalog).forEach(function (entry) {
@@ -538,9 +545,13 @@
       img.src = entry.dataUrl;
       img.alt = entry.name;
       img.draggable = false;
-      btn.appendChild(img);
       const active =
         brush.mode === "tile" && brush.id === entry.id;
+      if (active) {
+        const t = brushThumbTransform(brush.h, brush.v, brush.r);
+        if (t) img.style.transform = t;
+      }
+      btn.appendChild(img);
       btn.classList.toggle("is-active", active);
       btn.addEventListener("click", function () {
         setTileBrush(entry.id, brush.id === entry.id ? brush.h : false, brush.id === entry.id ? brush.v : false, brush.id === entry.id ? brush.r : 0);

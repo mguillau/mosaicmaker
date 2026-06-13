@@ -19,7 +19,7 @@ Stack: HTML, CSS, JavaScript (SVG). No build step, no backend.
 
 ## Run locally
 
-Open `index.html` in your favorite browser.
+Check-out the repository and open `index.html` in your favorite browser.
 
 ## Sweet Home 3D
 
